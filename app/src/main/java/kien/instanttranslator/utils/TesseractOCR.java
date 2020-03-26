@@ -1,4 +1,4 @@
-package kien.instanttranslator;
+package kien.instanttranslator.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 public class TesseractOCR {
 
   private final TessBaseAPI tessBaseAPI = new TessBaseAPI();
-  private final String TAG = "TesseractOCR.java";
+  private final String TAG = getClass().getSimpleName();
 
   // copy trained data from APK to internal storage
   public TesseractOCR(Context context, String language) {

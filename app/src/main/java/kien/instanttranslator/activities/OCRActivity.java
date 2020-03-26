@@ -1,5 +1,6 @@
-package kien.instanttranslator;
+package kien.instanttranslator.activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,9 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import kien.instanttranslator.R;
+import kien.instanttranslator.utils.TesseractOCR;
+
 public class OCRActivity extends AppCompatActivity {
 
   Button btnScan;
@@ -51,8 +55,9 @@ public class OCRActivity extends AppCompatActivity {
   boolean hasPermissions = false;
 
   String[] PERMISSIONS = {
-      android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-      android.Manifest.permission.CAMERA
+      Manifest.permission.WRITE_EXTERNAL_STORAGE,
+      Manifest.permission.READ_EXTERNAL_STORAGE,
+      Manifest.permission.CAMERA
   };
 
   @Override
