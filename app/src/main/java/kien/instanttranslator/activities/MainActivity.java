@@ -1,31 +1,25 @@
 package kien.instanttranslator.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Date;
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.services.FloatingWidgetService;
 import kien.instanttranslator.utils.PermissionManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
   private final String TAG = getClass().getSimpleName();
-
-  private BroadcastReceiver broadcastReceiver;
+  private final int REQUEST_SCREENSHOT = 5436;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +29,13 @@ public class MainActivity extends AppCompatActivity {
 
     checkPermissions();
 
-    createWidget();
+    bindView();
+  }
 
-    takeScreenshot(0, 0, 100, 100);
+  private void bindView() {
 
+    findViewById(R.id.btnStart).setOnClickListener(this);
+    findViewById(R.id.btnManage).setOnClickListener(this);
   }
 
   private void checkPermissions() {
@@ -54,48 +51,41 @@ public class MainActivity extends AppCompatActivity {
       PermissionManager.askPermissions(this);
   }
 
+  @Override
+  public void onClick(View v) {
+
+    switch (v.getId()) {
+      case R.id.btnStart:
+        createWidget();
+        break;
+      case R.id.btnManage:
+        Toast.makeText(this, "Developing...", Toast.LENGTH_SHORT).show();
+        break;
+    }
+  }
+
   private void createWidget() {
 
-    startService(new Intent(MainActivity.this, FloatingWidgetService.class));
-    finish();
+    MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+
+    if ( null != mediaProjectionManager )
+      startActivityForResult(mediaProjectionManager
+          .createScreenCaptureIntent(), REQUEST_SCREENSHOT);
   }
 
-  public void takeScreenshot(int x, int y, int width, int height) {
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-    Date now = new Date();
-    android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+    super.onActivityResult(requestCode, resultCode, data);
 
-    try {
-      // image naming and path  to include sd card  appending name you choose for file
-      String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
+    if ( REQUEST_SCREENSHOT == requestCode && RESULT_OK == resultCode ) {
 
-      // create bitmap screen capture
-      View v1 = getWindow().getDecorView().getRootView();
-      v1.setDrawingCacheEnabled(true);
-      Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache(), x, y, width, height);
-      v1.setDrawingCacheEnabled(false);
+      Intent intent = new Intent(MainActivity.this, FloatingWidgetService.class)
+          .putExtra(FloatingWidgetService.EXTRA_RESULT_CODE, resultCode)
+          .putExtra(FloatingWidgetService.EXTRA_RESULT_INTENT, data);
 
-      File imageFile = new File(mPath);
-
-      FileOutputStream outputStream = new FileOutputStream(imageFile);
-      int quality = 100;
-      bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-      outputStream.flush();
-      outputStream.close();
-      openScreenshot(imageFile);
+      startService(intent);
+      finish();
     }
-    catch (Throwable e) {
-      Log.e(TAG, "takeScreenshot: " + e.getMessage());
-      e.printStackTrace();
-    }
-  }
-
-  private void openScreenshot(File imageFile) {
-
-    Intent intent = new Intent();
-    intent.setAction(Intent.ACTION_VIEW);
-    Uri uri = Uri.fromFile(imageFile);
-    intent.setDataAndType(uri, "image/*");
-    startActivity(intent);
   }
 }

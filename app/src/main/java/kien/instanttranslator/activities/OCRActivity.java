@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import kien.instanttranslator.R;
-import kien.instanttranslator.utils.TesseractOCR;
+import kien.instanttranslator.ocr.TesseractOCR;
 
 public class OCRActivity extends AppCompatActivity {
 
@@ -75,7 +75,7 @@ public class OCRActivity extends AppCompatActivity {
     if ( !hasPermissions ) checkPermission();
 
     String language = "eng";
-    tesseractOCR = new TesseractOCR(this, language);
+    tesseractOCR = new TesseractOCR(this);
   }
 
   private void bindView() {
@@ -194,7 +194,7 @@ public class OCRActivity extends AppCompatActivity {
       @Override
       public void run() {
 
-        final String ocrResult = tesseractOCR.getResult(bmp);
+        final String ocrResult = tesseractOCR.extractText(bmp);
         Log.d(TAG, "run: " + ocrResult);
 
         runOnUiThread(new Runnable() {
