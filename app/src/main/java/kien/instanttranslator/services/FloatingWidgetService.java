@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -15,18 +16,24 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.activities.MainActivity;
+import kien.instanttranslator.ocr.TesseractOCR;
 import kien.instanttranslator.utils.Screenshot;
 
-public class FloatingWidgetService extends Service implements View.OnClickListener {
+public class FloatingWidgetService extends Service implements View.OnClickListener, GestureDetector.OnDoubleTapListener {
 
   private final String TAG = getClass().getSimpleName();
   private final HandlerThread handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
@@ -39,6 +46,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
   private View floatingView;
   private View collapsedView;
   private View expandedView;
+  private AppCompatImageView ivScreenshot;
   private WindowManager.LayoutParams params;
   private MediaProjection mediaProjection;
   private MediaProjectionManager mediaProjectionManager;
@@ -47,9 +55,9 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
   private int resultCode;
   private Intent resultData;
 
-  public Handler getHandler() { return this.handler; }
+  public Handler getHandler() { return handler; }
 
-  public WindowManager getWindowManager() { return this.windowManager; }
+  public WindowManager getWindowManager() { return windowManager; }
 
   @Nullable
   @Override
@@ -97,11 +105,13 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
     collapsedView = floatingView.findViewById(R.id.layoutCollapsed);
     expandedView = floatingView.findViewById(R.id.layoutExpanded);
+    ivScreenshot = floatingView.findViewById(R.id.ivScreenshot);
 
     floatingView.findViewById(R.id.ivClose).setOnClickListener(this);
-    expandedView.setOnClickListener(this);
+//    floatingView.findViewById(R.id.ivCollapsed).setOnClickListener(this);
+//    expandedView.setOnClickListener(this);
 
-    floatingView.findViewById(R.id.layoutParent).setOnTouchListener(new View.OnTouchListener() {
+    floatingView.findViewById(R.id.layoutCollapsed).setOnTouchListener(new View.OnTouchListener() {
 
       private int initialX;
       private int initialY;
@@ -118,15 +128,13 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             initialY = params.y;
             initialTouchX = event.getRawX();
             initialTouchY = event.getRawY();
+
+            if ( null != resultData ) startCapture();
             return true;
           case MotionEvent.ACTION_UP:
-            // when the drag is ended switching the state of the widget
-//            collapsedView.setVisibility(View.GONE);
-//            expandedView.setVisibility(View.VISIBLE);
             params.x = initialX + (int) (event.getRawX() - initialTouchX);
             params.y = initialY + (int) (event.getRawY() - initialTouchY);
-            Log.d(TAG, "onTouch: takeScreenshot " + initialX + " " + initialY + " " + params.x + " " + params.y);
-            if ( null != resultData ) startCapture();
+//            if ( null != resultData ) startCapture();
             return true;
           case MotionEvent.ACTION_MOVE:
             // this code is helping the widget to move around the screen with fingers
@@ -152,11 +160,35 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         break;
+      case R.id.ivCollapsed:
+//      case R.id.layoutParent:
+      case R.id.layoutCollapsed:
+        if ( null != resultData ) startCapture();
+        break;
       case R.id.layoutExpanded:
 //        collapsedView.setVisibility(View.VISIBLE);
 //        expandedView.setVisibility(View.GONE);
         break;
     }
+  }
+
+  @Override
+  public boolean onSingleTapConfirmed(MotionEvent e) {
+
+    return false;
+  }
+
+  @Override
+  public boolean onDoubleTap(MotionEvent e) {
+
+    Log.d(TAG, "onDoubleTap: " + e.getAction());
+    return false;
+  }
+
+  @Override
+  public boolean onDoubleTapEvent(MotionEvent e) {
+
+    return false;
   }
 
   @Override
@@ -169,6 +201,9 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
   private void startCapture() {
 
+    if ( null != mediaProjection ) return; // hmm, I feel something is not good here
+
+//    collapsedView.setVisibility(View.GONE);
     mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
     final Screenshot screenshot = Screenshot.getInstance(FloatingWidgetService.this);
     MediaProjection.Callback cb = new MediaProjection.Callback() {
@@ -191,11 +226,35 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
   public void stopCapture() {
 
+//    collapsedView.setVisibility(View.VISIBLE);
+
     if ( null != mediaProjection ) {
 
       mediaProjection.stop();
       mediaProjection = null;
       virtualDisplay.release();
     }
+  }
+
+  public void showCapturedImage(final Bitmap image) {
+
+    Log.d(TAG, "showCapturedImage: " + image);
+
+//    floatingView.post(new Runnable() {
+//
+//      @Override
+//      public void run() {
+//
+//        Log.d(TAG, "run: set image successfully");
+//        ivScreenshot.setImageBitmap(image);
+//        expandedView.setVisibility(View.VISIBLE);
+//      }
+//    });
+
+    stopCapture();
+
+    TesseractOCR tesseractOCR = new TesseractOCR(this);
+    tesseractOCR.setLanguage("eng");
+    tesseractOCR.extractText(image);
   }
 }

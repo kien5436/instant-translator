@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:id="@+id/layoutRoot"
-             tools:ignore="InvalidId">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/layoutParent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+  <!--  <RelativeLayout-->
+  <!--      android:id="@+id/layoutParent"-->
+  <!--      android:layout_width="match_parent"-->
+  <!--      android:layout_height="match_parent">-->
+  <RelativeLayout
+      android:id="@+id/layoutExpanded"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="horizontal"
+      android:visibility="gone">
+    <!--    some layout for translated text-->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivScreenshot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+  </RelativeLayout>
 
   <RelativeLayout
-      android:id="@+id/layoutParent"
+      android:id="@+id/layoutCollapsed"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      tools:ignore="UselessParent">
+      android:orientation="vertical"
+      android:visibility="visible">
 
-    <RelativeLayout
-        android:id="@+id/layoutCollapsed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible">
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivCollapsed"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_center_focus_24dp" />
 
-      <ImageView
-          android:id="@+id/ivCollapsed"
-          android:layout_width="70dp"
-          android:layout_height="70dp"
-          android:layout_marginTop="8dp"
-          android:src="@drawable/ic_center_focus_24dp" />
-
-      <ImageView
-          android:id="@+id/ivClose"
-          android:layout_width="25dp"
-          android:layout_height="25dp"
-          android:layout_marginLeft="50dp"
-          android:src="@drawable/ic_close_25dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/layoutExpanded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#a0c3d7"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:visibility="gone">
-      <!--      some layout for translated text-->
-    </RelativeLayout>
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivClose"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="50dp"
+        android:src="@drawable/ic_close_25dp" />
   </RelativeLayout>
-</FrameLayout>
+  <!--  </RelativeLayout>-->
+</RelativeLayout>

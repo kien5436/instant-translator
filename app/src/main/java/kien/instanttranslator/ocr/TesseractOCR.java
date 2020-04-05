@@ -23,7 +23,7 @@ public class TesseractOCR {
 
   public TesseractOCR(Context context) {
 
-    this.APP_STORAGE_PATH = context.getFilesDir().getAbsolutePath() + "/instant_translator/";
+    this.APP_STORAGE_PATH = context.getExternalFilesDir(null) + "/";
     copyTessData(context);
   }
 
@@ -90,6 +90,8 @@ public class TesseractOCR {
 
       tessBaseAPI.init(this.APP_STORAGE_PATH, this.language);
       tessBaseAPI.setImage(bitmap);
+      Log.d(TAG, "extractText: " + tessBaseAPI.getBoxText(0));
+      Log.d(TAG, "extractText: " + tessBaseAPI.getHOCRText(0));
       res = tessBaseAPI.getUTF8Text();
       tessBaseAPI.end();
     }

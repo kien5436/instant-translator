@@ -35,7 +35,7 @@ public class Screenshot implements ImageReader.OnImageAvailableListener {
     return screenshot;
   }
 
-  public Screenshot(FloatingWidgetService service) {
+  private Screenshot(FloatingWidgetService service) {
 
     this.service = service;
 
@@ -98,11 +98,11 @@ public class Screenshot implements ImageReader.OnImageAvailableListener {
 
       byte[] newImage = outputStream.toByteArray();
 
-      save(newImage);
+      service.showCapturedImage(croppedBmp);
     }
   }
 
-  private void save(final byte[] image) {
+  public void saveImage(final byte[] image) {
 
     new Thread() {
 
@@ -120,6 +120,7 @@ public class Screenshot implements ImageReader.OnImageAvailableListener {
           fileOutputStream.close();
 
           Log.d(TAG, "run: saved image at " + service.getExternalFilesDir(null));
+//          showCapturedImage(outputFile);
         }
         catch (Exception e) {
 
