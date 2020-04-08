@@ -25,9 +25,6 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-
 import kien.instanttranslator.R;
 import kien.instanttranslator.activities.MainActivity;
 import kien.instanttranslator.ocr.TesseractOCR;
@@ -132,9 +129,13 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             if ( null != resultData ) startCapture();
             return true;
           case MotionEvent.ACTION_UP:
-            params.x = initialX + (int) (event.getRawX() - initialTouchX);
-            params.y = initialY + (int) (event.getRawY() - initialTouchY);
-//            if ( null != resultData ) startCapture();
+            Bitmap bitmap=null;
+            if ( null != resultData ) {
+              bitmap=startCapture();
+            }
+
+            String word=detectWord(bitmap,(int) event.getRawX(),(int) event.getRawY());
+
             return true;
           case MotionEvent.ACTION_MOVE:
             // this code is helping the widget to move around the screen with fingers
@@ -148,7 +149,14 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
       }
     });
   }
-
+public String detectWord(Bitmap bitmap,int x,int y)
+{
+  TesseractOCR tesseractOCR = new TesseractOCR(FloatingWidgetService.this);
+  tesseractOCR.setLanguage("eng");
+  String wordResult = tesseractOCR.extractText(bitmap, x, y);
+  Log.d(TAG, "onTouch: word Result: " + wordResult );
+  return wordResult;
+}
   @Override
   public void onClick(View v) {
 
@@ -199,11 +207,11 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
     if ( null != floatingView ) windowManager.removeView(floatingView);
   }
 
-  private void startCapture() {
+  private Bitmap startCapture() {
 
-    if ( null != mediaProjection ) return; // hmm, I feel something is not good here
+    if ( null != mediaProjection ) return null; // hmm, I feel something is not good here
 
-//    collapsedView.setVisibility(View.GONE);
+    collapsedView.setVisibility(View.GONE);
     mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
     final Screenshot screenshot = Screenshot.getInstance(FloatingWidgetService.this);
     MediaProjection.Callback cb = new MediaProjection.Callback() {
@@ -220,10 +228,8 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             getResources().getDisplayMetrics().densityDpi,
             VIRTUAL_DISPLAY_FLAGS,
             screenshot.getSurface(), null, handler);
-
-    mediaProjection.registerCallback(cb, handler);
+    return screenshot.getImage();
   }
-
   public void stopCapture() {
 
 //    collapsedView.setVisibility(View.VISIBLE);
@@ -240,21 +246,16 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
     Log.d(TAG, "showCapturedImage: " + image);
 
-//    floatingView.post(new Runnable() {
-//
-//      @Override
-//      public void run() {
-//
-//        Log.d(TAG, "run: set image successfully");
-//        ivScreenshot.setImageBitmap(image);
-//        expandedView.setVisibility(View.VISIBLE);
-//      }
-//    });
+    floatingView.post(new Runnable() {
+
+      @Override
+      public void run() {
+
+        collapsedView.setVisibility(View.VISIBLE);
+      }
+    });
 
     stopCapture();
 
-    TesseractOCR tesseractOCR = new TesseractOCR(this);
-    tesseractOCR.setLanguage("eng");
-    tesseractOCR.extractText(image);
   }
 }

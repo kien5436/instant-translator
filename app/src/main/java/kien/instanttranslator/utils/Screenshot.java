@@ -1,6 +1,7 @@
 package kien.instanttranslator.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.media.Image;
@@ -99,6 +100,7 @@ public class Screenshot implements ImageReader.OnImageAvailableListener {
       byte[] newImage = outputStream.toByteArray();
 
       service.showCapturedImage(croppedBmp);
+      saveImage(newImage);
     }
   }
 
@@ -131,5 +133,15 @@ public class Screenshot implements ImageReader.OnImageAvailableListener {
     }.start();
 
     service.stopCapture();
+  }
+  public Bitmap getImage()
+  {
+    File imgFile = new  File(service.getExternalFilesDir(null) + "/screenshot.jpg");
+    Bitmap myBitmap=null;
+    if(imgFile.exists()) {
+
+      myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+    }
+      return myBitmap;
   }
 }
