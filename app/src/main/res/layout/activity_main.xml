@@ -11,7 +11,7 @@
       android:id="@+id/btnStart"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:backgroundTint="#212121"
+      android:backgroundTint="@color/colorPrimary"
       android:text="@string/startTranslating"
       android:textColor="#fff" />
 
@@ -19,7 +19,7 @@
       android:id="@+id/btnManage"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:backgroundTint="#212121"
+      android:backgroundTint="@color/colorPrimary"
       android:text="@string/manageLanguages"
       android:textColor="#fff" />
 </LinearLayout>
