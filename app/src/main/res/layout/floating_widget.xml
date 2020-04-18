@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:id="@+id/layoutParent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-  <!--  <RelativeLayout-->
-  <!--      android:id="@+id/layoutParent"-->
-  <!--      android:layout_width="match_parent"-->
-  <!--      android:layout_height="match_parent">-->
+
   <RelativeLayout
       android:id="@+id/layoutExpanded"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/layoutCollapsed"
       android:orientation="horizontal"
+      android:padding="8dp"
       android:visibility="gone">
-    <!--    some layout for translated text-->
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivScreenshot"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+
+    <ScrollView
+        android:id="@+id/svResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bordered_view"
+        android:padding="16dp"
+        tools:ignore="UselessParent">
+
+      <com.google.android.material.textview.MaterialTextView
+          android:id="@+id/tvTranslated"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/wait"
+          android:textColor="#fff"
+          android:textSize="16sp" />
+    </ScrollView>
   </RelativeLayout>
 
   <RelativeLayout
@@ -41,5 +53,4 @@
         android:layout_marginStart="50dp"
         android:src="@drawable/ic_close_25dp" />
   </RelativeLayout>
-  <!--  </RelativeLayout>-->
 </RelativeLayout>

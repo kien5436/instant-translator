@@ -18,6 +18,7 @@ public class LanguageModelMananger {
   private final String TAG = getClass().getSimpleName();
 
   private FirebaseModelManager modelManager = FirebaseModelManager.getInstance();
+  public static final String DEFAULT_LANGUAGE = "eng";
 
   public void getDownloadedLanguages() {
 
