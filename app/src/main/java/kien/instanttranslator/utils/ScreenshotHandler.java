@@ -93,15 +93,16 @@ public class ScreenshotHandler {
 
         Bitmap bitmap = screenshot.getImage(imageReader);
         stopCapture();
-        Log.d(TAG, "onImageAvailable: " + bitmap);
-        ((FloatingWidgetService) context).updateUI(FloatingWidgetService.UPDATE_UI_SHOW_FOCUS_VIEW, null);
+        ((FloatingWidgetService) context)
+            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_FOCUS_VIEW, null);
 
         // do OCR
         tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
         String extracted = tesseractOCR
             .extractText(bitmap, touchX, touchY);
         Log.d(TAG, "onImageAvailable: " + extracted);
-        ((FloatingWidgetService) context).updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extracted);
+        ((FloatingWidgetService) context)
+            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extracted);
       }
     };
 
@@ -121,6 +122,14 @@ public class ScreenshotHandler {
   public void destroy() {
 
     handlerThread.quitSafely();
+    try {
+      handlerThread.join();
+      handlerThread = null;
+      handler = null;
+    }
+    catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     tesseractOCR.destroy();
   }
 }
