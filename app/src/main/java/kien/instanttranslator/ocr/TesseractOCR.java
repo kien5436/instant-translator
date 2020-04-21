@@ -86,6 +86,7 @@ public class TesseractOCR {
     String result = null;
 
     try {
+//      tessBaseAPI = new TessBaseAPI();
       tessBaseAPI.init(APP_STORAGE_PATH, language, TessBaseAPI.OEM_DEFAULT);
       tessBaseAPI.setDebug(BuildConfig.DEBUG);
       tessBaseAPI.setImage(bitmap);

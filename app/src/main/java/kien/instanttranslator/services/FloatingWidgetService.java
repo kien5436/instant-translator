@@ -41,8 +41,6 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
   public static WindowManager getWindowManager() { return windowManager; }
 
-  public View getCollapsedView() { return collapsedView; }
-
   @Nullable
   @Override
   public IBinder onBind(Intent intent) { return null; }
@@ -101,7 +99,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
       @SuppressLint("ClickableViewAccessibility")
       @Override
-      public boolean onTouch(View v, MotionEvent event) {
+      public boolean onTouch(View v, final MotionEvent event) {
 
         switch (event.getAction()) {
           case MotionEvent.ACTION_DOWN:
@@ -111,11 +109,18 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             initialTouchY = event.getRawY();
             return true;
           case MotionEvent.ACTION_UP:
-            // ẩn collapsedView để chụp màn hình và chuyển cho background thread
-            collapsedView.setVisibility(View.GONE);
-            screenshotHandler.setTouchX((int) event.getRawX());
-            screenshotHandler.setTouchY((int) event.getRawY());
-            screenshotHandler.startCapture();
+            // hiding collapsedView and take screenshots in background thread
+            collapsedView.setVisibility(View.INVISIBLE);
+            floatingView.post(new Runnable() {
+
+              @Override
+              public void run() {
+
+                screenshotHandler.setTouchX((int) event.getRawX());
+                screenshotHandler.setTouchY((int) event.getRawY());
+                screenshotHandler.startCapture();
+              }
+            });
             return true;
           case MotionEvent.ACTION_MOVE:
             // this code is helping the widget to move around the screen with fingers
