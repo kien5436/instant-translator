@@ -13,11 +13,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
-import android.view.WindowManager;
 
 import kien.instanttranslator.ocr.TesseractOCR;
 import kien.instanttranslator.services.FloatingWidgetService;
-import kien.instanttranslator.translation.LanguageModelMananger;
+import kien.instanttranslator.translation.Translator;
 
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 
@@ -33,7 +32,11 @@ public class ScreenshotHandler {
   private VirtualDisplay virtualDisplay;
   private int resultCode;
   private Intent resultData;
+  private Screenshot screenshot;
+  private ImageReader imageReader;
+
   private TesseractOCR tesseractOCR;
+  private Translator translator;
 
   private Context context;
   private int touchX;
@@ -51,17 +54,18 @@ public class ScreenshotHandler {
     handlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
+    screenshot = Screenshot
+        .getInstance(FloatingWidgetService.getWindowManager().getDefaultDisplay());
+    imageReader = ImageReader
+        .newInstance(screenshot.getWidth(), screenshot.getHeight(), PixelFormat.RGBA_8888, 2);
 
     tesseractOCR = new TesseractOCR(context);
+    translator = new Translator();
   }
-
-  ScreenshotHandler() {}
 
   public void setTouchX(int touchX) { this.touchX = touchX; }
 
   public void setTouchY(int touchY) { this.touchY = touchY; }
-
-  WindowManager getWindowManager() { return FloatingWidgetService.getWindowManager(); }
 
   public void startCapture() {
 
@@ -69,9 +73,6 @@ public class ScreenshotHandler {
       return; // hmm, I feel something is not good here
 
     mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
-    final Screenshot screenshot = Screenshot.getInstance();
-    final ImageReader imageReader = ImageReader
-        .newInstance(screenshot.getWidth(), screenshot.getHeight(), PixelFormat.RGBA_8888, 2);
     MediaProjection.Callback cb = new MediaProjection.Callback() {
 
       @Override
@@ -97,12 +98,16 @@ public class ScreenshotHandler {
             .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_FOCUS_VIEW, null);
 
         // do OCR
-        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
-        String extracted = tesseractOCR
-            .extractText(bitmap, touchX, touchY);
-        Log.d(TAG, "onImageAvailable: " + extracted);
-        ((FloatingWidgetService) context)
-            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extracted);
+//        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
+//        String extracted = tesseractOCR
+//            .extractText(bitmap, touchX, touchY);
+//        Log.d(TAG, "onImageAvailable: " + extracted);
+//        ((FloatingWidgetService) context)
+//            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extracted);
+
+        translator.setOriginalText("You got it!");
+        String resultData = translator.translate();
+        Log.d(TAG, "onImageAvailable: " + resultData);
       }
     };
 
