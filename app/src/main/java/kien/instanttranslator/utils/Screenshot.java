@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.media.Image;
 import android.media.ImageReader;
 import android.view.Display;
+import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -23,18 +24,16 @@ class Screenshot {
 
   private Bitmap latestBmp = null;
 
-  static Screenshot getInstance() {
+  static Screenshot getInstance(Display display) {
 
     if ( null == screenshot )
-      screenshot = new Screenshot();
+      screenshot = new Screenshot(display);
 
     return screenshot;
   }
 
-  private Screenshot() {
+  private Screenshot(Display display) {
 
-    ScreenshotHandler screenshotHandler = new ScreenshotHandler();
-    Display display = screenshotHandler.getWindowManager().getDefaultDisplay();
     Point size = new Point();
 
     display.getRealSize(size);
