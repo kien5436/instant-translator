@@ -14,107 +14,115 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import kien.instanttranslator.BuildConfig;
 import kien.instanttranslator.utils.PermissionManager;
 
 import static com.googlecode.tesseract.android.TessBaseAPI.PageIteratorLevel.RIL_WORD;
 
 public class TesseractOCR {
 
-    private final String TAG = getClass().getSimpleName();
-    private TessBaseAPI tessBaseAPI;
-    private final String APP_STORAGE_PATH;
+  private final String TAG = getClass().getSimpleName();
+  private static TessBaseAPI tessBaseAPI = null;
+  private static String APP_STORAGE_PATH;
+
+  private String language;
+
+  public TesseractOCR(Context context) {
+
+    tessBaseAPI = new TessBaseAPI();
+    APP_STORAGE_PATH = context.getFilesDir() + "/";
+
+    copyTessData(context);
+  }
+
+  public void setLanguage(String language) { this.language = language;}
+
+  // copy trained data from APK to internal storage
+  private void copyTessData(Context context) {
+
     final String TESSDATA_PATH = "tessdata";
+    File tessDataDir = new File(APP_STORAGE_PATH + TESSDATA_PATH);
 
-    private String language;
+    // create TESSDATA_PATH if not exist
+    if ( !tessDataDir.exists() && !tessDataDir.mkdirs() )
+      PermissionManager.askPermissions(context);
 
-    public TesseractOCR(Context context) {
+    try {
+      String[] tessDataList = context.getAssets().list(TESSDATA_PATH);
 
-        this.APP_STORAGE_PATH = context.getExternalFilesDir(null) + "";
-        copyTessData(context);
-        tessBaseAPI = new TessBaseAPI();
-        tessBaseAPI.init(this.APP_STORAGE_PATH,"eng");
-    }
+      if ( null != tessDataList )
+        for (String fileName : tessDataList) {
 
-    public void setLanguage(String language) {
+          String outputFilePath = APP_STORAGE_PATH + TESSDATA_PATH + "/" + fileName;
 
-        this.language = language;
-    }
+          if ( !(new File(outputFilePath)).exists() ) {
 
-    // copy trained data from APK to internal storage
-    private void copyTessData(Context context) {
+            InputStream is = context.getAssets().open(TESSDATA_PATH + "/" + fileName);
+            OutputStream os = new FileOutputStream(outputFilePath);
+            byte[] buff = new byte[1024];
 
-        File tessDataDir = new File(APP_STORAGE_PATH +"/"+ TESSDATA_PATH);
+            for (int len = 1; ; len = is.read(buff)) {
 
-        // create TESSDATA_PATH if not exist
-        if ( !tessDataDir.exists() && !tessDataDir.mkdirs() )
-            PermissionManager.askPermissions(context);
+              if ( 0 >= len ) break;
 
-        try {
-            String[] tessDataList = context.getAssets().list(TESSDATA_PATH);
-
-            if ( null != tessDataList )
-                for (String fileName : tessDataList) {
-
-                    String outputFilePath = APP_STORAGE_PATH +"/"+ TESSDATA_PATH + "/" + fileName;
-
-                    if ( !(new File(outputFilePath)).exists() ) {
-
-                        InputStream is = context.getAssets().open(TESSDATA_PATH + "/" + fileName);
-                        OutputStream os = new FileOutputStream(outputFilePath);
-                        byte[] buff = new byte[1024];
-                        int len;
-
-                        for (; ; ) {
-
-                            len = is.read(buff);
-
-                            if ( len <= 0 ) break;
-
-                            os.write(buff, 0, len);
-                        }
-
-                        is.close();
-                        os.flush();
-                        os.close();
-                    }
-                }
-        }
-        catch (IOException e) {
-
-            Log.e(TAG, "copyTessData: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public String extractText(Bitmap bitmap,int x,int y) {
-        try {
-
-            int index=0;
-            tessBaseAPI.setImage(bitmap);
-            String detectBlock = tessBaseAPI.getUTF8Text();
-            //String[] abc=result.split("\\s");
-            int size=tessBaseAPI.getWords().size();
-            ResultIterator resultIterator=tessBaseAPI.getResultIterator();
-            do{
-                //Box b=m_tess.getWords().getBox(j);
-                Rect rect=tessBaseAPI.getWords().getBox(index).getRect();
-                String detectWord=resultIterator.getUTF8Text(RIL_WORD);
-                if(rect.contains(x,y))
-                {
-                    resultIterator.delete();
-                    return detectWord;
-                }
-                index++;
+              os.write(buff, 0, len);
             }
-            while(resultIterator.next(RIL_WORD)&& index<size);
-        }
-        catch (Exception e) {
-            Log.e(TAG, "extractText: " + e.getMessage());
-            e.printStackTrace();
-        }
 
-        return null;
+            is.close();
+            os.flush();
+            os.close();
+          }
+        }
+    }
+    catch (IOException e) {
+
+      Log.e(TAG, "copyTessData: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  public String extractText(Bitmap bitmap, int x, int y) {
+
+    String result = null;
+
+    try {
+//      tessBaseAPI = new TessBaseAPI();
+      tessBaseAPI.init(APP_STORAGE_PATH, language, TessBaseAPI.OEM_DEFAULT);
+      tessBaseAPI.setDebug(BuildConfig.DEBUG);
+      tessBaseAPI.setImage(bitmap);
+      Log.d(TAG, "extractText: " + tessBaseAPI.getUTF8Text());
+      ResultIterator resultIterator = tessBaseAPI.getResultIterator();
+
+      if ( null != resultIterator ) {
+
+        int size = tessBaseAPI.getWords().size();
+        int i = 0;
+
+        do {
+          Rect rect = tessBaseAPI.getWords().getBox(i).getRect();
+
+          if ( rect.contains(x, y) ) {
+
+            result = resultIterator.getUTF8Text(RIL_WORD);
+            resultIterator.delete();
+            break;
+          }
+
+          i++;
+        } while (i < size && resultIterator.next(RIL_WORD));
+      }
+    }
+    catch (Exception e) {
+      Log.e(TAG, "extractText: " + e.getMessage());
+      e.printStackTrace();
+    }
+    finally {
+      tessBaseAPI.clear();
+      bitmap.recycle();
     }
 
-    public void onDestroy() { if ( null != tessBaseAPI ) tessBaseAPI.end(); }
+    return result;
+  }
+
+  public void destroy() { if ( null != tessBaseAPI ) tessBaseAPI.end(); }
 }

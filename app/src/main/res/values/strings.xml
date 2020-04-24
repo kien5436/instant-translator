@@ -2,4 +2,6 @@
   <string name="app_name">Instant Translator</string>
   <string name="startTranslating">Start translating</string>
   <string name="manageLanguages">Manage languages</string>
+  <string name="wait">Translating…</string>
+  <string name="translateFailed">Could not translate, please try again</string>
 </resources>

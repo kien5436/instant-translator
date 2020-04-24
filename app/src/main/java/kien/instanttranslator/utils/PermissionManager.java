@@ -11,9 +11,6 @@ public class PermissionManager {
 
   public static final int REQUEST_PERMISSION = 1;
   private static final String[] PERMISSIONS = {
-      Manifest.permission.WRITE_EXTERNAL_STORAGE,
-      Manifest.permission.READ_EXTERNAL_STORAGE,
-      Manifest.permission.CAMERA,
       Manifest.permission.INTERNET
   };
 
