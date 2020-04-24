@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +26,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
   public static final String EXTRA_RESULT_CODE = "RESULT_CODE";
   public static final String EXTRA_RESULT_INTENT = "RESULT_INTENT";
-  public static final int UPDATE_UI_SHOW_FOCUS_VIEW = 0;
+  public static final int UPDATE_UI_SHOW_WAITING_VIEW = 0;
   public static final int UPDATE_UI_SHOW_RESULT = 1;
 
   private static WindowManager windowManager;
@@ -88,7 +87,6 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
     floatingView.findViewById(R.id.ivClose).setOnClickListener(this);
     floatingView.findViewById(R.id.tvTranslated).setOnClickListener(this);
-//    expandedView.setOnClickListener(this);
 
     collapsedView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -107,6 +105,8 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             initialY = params.y;
             initialTouchX = event.getRawX();
             initialTouchY = event.getRawY();
+
+            expandedView.setVisibility(View.GONE);
             return true;
           case MotionEvent.ACTION_UP:
             // hiding collapsedView and take screenshots in background thread
@@ -146,21 +146,12 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         break;
-      case R.id.ivCollapsed:
-//      case R.id.layoutParent:
-      case R.id.layoutCollapsed:
-        break;
-      case R.id.layoutExpanded:
-//        collapsedView.setVisibility(View.VISIBLE);
-//        expandedView.setVisibility(View.GONE);
-        break;
     }
   }
 
   @Override
   public void onDestroy() {
 
-    Log.d(TAG, "onDestroy: " + screenshotHandler);
     if ( null != floatingView ) windowManager.removeView(floatingView);
     if ( null != screenshotHandler ) screenshotHandler.destroy();
   }
@@ -171,18 +162,27 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
    * @param code       {@link FloatingWidgetService}'s constants
    * @param resultData Result from background. Passing <i>null</i> if not needed
    */
-  public void updateUI(int code, String resultData) {
+  public void updateUI(int code, final String resultData) {
 
     switch (code) {
-      case UPDATE_UI_SHOW_FOCUS_VIEW:
+      case UPDATE_UI_SHOW_WAITING_VIEW:
         floatingView.post(new Runnable() {
 
           @Override
-          public void run() { collapsedView.setVisibility(View.VISIBLE); }
+          public void run() {
+
+            collapsedView.setVisibility(View.VISIBLE);
+            tvTranslated.setText(getResources().getString(R.string.wait));
+            expandedView.setVisibility(View.VISIBLE);
+          }
         });
         break;
       case UPDATE_UI_SHOW_RESULT:
-        Log.d(TAG, "updateUI: " + resultData);
+        floatingView.post(new Runnable() {
+
+          @Override
+          public void run() { tvTranslated.setText(resultData); }
+        });
         break;
     }
   }

@@ -1,7 +1,5 @@
 package kien.instanttranslator.translation;
 
-import android.util.Log;
-
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
@@ -31,43 +29,35 @@ public class Translator {
 
   public void setOriginalText(String originalText) { this.originalText = originalText; }
 
-  public String translate() {
+  public String translate() throws InterruptedException, ExecutionException, TimeoutException {
 
-    String translatedText = null;
     FirebaseLanguageIdentification languageIdentifier = FirebaseNaturalLanguage.getInstance()
                                                                                .getLanguageIdentification();
+    final Task<String> identifyTask = languageIdentifier.identifyLanguage(originalText);
+
+    String languageCode = Tasks.await(identifyTask, 500, TimeUnit.MILLISECONDS);
+    Integer sourceLanguage = !languageCode
+        .equals(FirebaseLanguageIdentification.UNDETERMINED_LANGUAGE_CODE) ?
+                             FirebaseTranslateLanguage.languageForLanguageCode(languageCode) :
+                             null;
+
+    // set fallback source language to English
+    if ( null == sourceLanguage ) sourceLanguage = FirebaseTranslateLanguage.EN;
+
+    FirebaseTranslatorOptions options = new FirebaseTranslatorOptions.Builder()
+        .setSourceLanguage(sourceLanguage)
+        .setTargetLanguage(targetLanguage)
+        .build();
     FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
         .requireWifi()
         .build();
-    final Task<String> identifyTask = languageIdentifier.identifyLanguage(originalText);
+    final FirebaseTranslator translator = FirebaseNaturalLanguage.getInstance()
+                                                                 .getTranslator(options);
+    final Task<Void> downloadTask = translator.downloadModelIfNeeded(conditions);
+    final Task<String> translateTask = translator.translate(originalText);
 
-    try {
-      String languageCode = Tasks.await(identifyTask, 500, TimeUnit.MILLISECONDS);
-      Integer sourceLanguage = FirebaseTranslateLanguage.languageForLanguageCode(languageCode);
+    Tasks.await(downloadTask);
 
-      // set fallback source language to English
-      if ( null == sourceLanguage ) sourceLanguage = FirebaseTranslateLanguage.EN;
-
-      FirebaseTranslatorOptions options = new FirebaseTranslatorOptions.Builder()
-          .setSourceLanguage(sourceLanguage)
-          .setTargetLanguage(targetLanguage)
-          .build();
-      final FirebaseTranslator translator = FirebaseNaturalLanguage.getInstance()
-                                                                   .getTranslator(options);
-      final Task<Void> downloadTask = translator.downloadModelIfNeeded(conditions);
-      final Task<String> translateTask = translator.translate(originalText);
-
-      Tasks.await(downloadTask);
-      translatedText = Tasks.await(translateTask);
-    }
-    catch (InterruptedException | ExecutionException e) {
-      Log.e(TAG, "translate: " + e.getMessage());
-      e.printStackTrace();
-    }
-    catch (TimeoutException e) {
-      e.printStackTrace();
-    }
-
-    return translatedText;
+    return Tasks.await(translateTask);
   }
 }
