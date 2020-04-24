@@ -30,7 +30,7 @@ public class TesseractOCR {
   public TesseractOCR(Context context) {
 
     tessBaseAPI = new TessBaseAPI();
-    APP_STORAGE_PATH = context.getExternalFilesDir(null) + "/";
+    APP_STORAGE_PATH = context.getFilesDir() + "/";
 
     copyTessData(context);
   }

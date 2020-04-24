@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.services.FloatingWidgetService;
-import kien.instanttranslator.translation.Translator;
 import kien.instanttranslator.utils.PermissionManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -62,18 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         break;
       case R.id.btnManage:
         Toast.makeText(this, "Developing...", Toast.LENGTH_SHORT).show();
-//        new Thread(new Runnable() {
-//
-//          @Override
-//          public void run() {
-//
-//            Translator translator = new Translator();
-//
-//            translator.setOriginalText("hello");
-//           String text = translator.translate();
-//            Log.d(TAG, "run: "+text);
-//          }
-//        }).start();
         break;
     }
   }

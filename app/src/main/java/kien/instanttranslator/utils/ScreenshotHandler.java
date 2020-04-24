@@ -14,8 +14,10 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
 
+import kien.instanttranslator.R;
 import kien.instanttranslator.ocr.TesseractOCR;
 import kien.instanttranslator.services.FloatingWidgetService;
+import kien.instanttranslator.translation.LanguageModelMananger;
 import kien.instanttranslator.translation.Translator;
 
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
@@ -34,6 +36,7 @@ public class ScreenshotHandler {
   private Intent resultData;
   private Screenshot screenshot;
   private ImageReader imageReader;
+  private boolean isCapturing = false;
 
   private TesseractOCR tesseractOCR;
   private Translator translator;
@@ -72,6 +75,7 @@ public class ScreenshotHandler {
     if ( null != mediaProjection || null == resultData )
       return; // hmm, I feel something is not good here
 
+    isCapturing = true;
     mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
     MediaProjection.Callback cb = new MediaProjection.Callback() {
 
@@ -92,22 +96,34 @@ public class ScreenshotHandler {
       @Override
       public void onImageAvailable(ImageReader reader) {
 
+//        if ( !isCapturing ) return;
+
+        FloatingWidgetService service = (FloatingWidgetService) context;
+
         Bitmap bitmap = screenshot.getImage(imageReader);
         stopCapture();
-        ((FloatingWidgetService) context)
-            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_FOCUS_VIEW, null);
+        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_WAITING_VIEW, null);
 
         // do OCR
-//        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
-//        String extracted = tesseractOCR
-//            .extractText(bitmap, touchX, touchY);
-//        Log.d(TAG, "onImageAvailable: " + extracted);
-//        ((FloatingWidgetService) context)
-//            .updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extracted);
+        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
+        String extractedText = tesseractOCR.extractText(bitmap, touchX, touchY);
+        Log.d(TAG, "onImageAvailable: " + extractedText);
 
         translator.setOriginalText("You got it!");
-        String resultData = translator.translate();
-        Log.d(TAG, "onImageAvailable: " + resultData);
+        try {
+          String resultData = translator.translate();
+          service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, resultData);
+          Log.d(TAG, "onImageAvailable: " + resultData);
+        }
+        catch (Exception e) {
+          Log.e(TAG, "onImageAvailable: " + e.getMessage());
+          service.updateUI(
+              FloatingWidgetService.UPDATE_UI_SHOW_RESULT,
+              service.getResources().getString(R.string.translateFailed)
+          );
+        }
+
+        isCapturing = false;
       }
     };
 
