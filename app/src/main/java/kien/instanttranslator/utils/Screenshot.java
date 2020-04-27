@@ -83,8 +83,8 @@ class Screenshot {
     Bitmap croppedBmp = Bitmap.createBitmap(latestBmp, 0, 0, width, height);
     croppedBmp = grayedOut(croppedBmp);
     croppedBmp = Bitmap
-        .createScaledBitmap(croppedBmp, (int) (croppedBmp.getWidth() * .8), (int) (croppedBmp
-                                                                                       .getHeight() * .8), true);
+        .createScaledBitmap(croppedBmp, (int) (croppedBmp.getWidth() ), (int) (croppedBmp
+                                                                                       .getHeight() ), true);
 
     croppedBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
 

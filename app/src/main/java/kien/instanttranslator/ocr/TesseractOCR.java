@@ -1,6 +1,7 @@
 package kien.instanttranslator.ocr;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.util.Log;
@@ -9,6 +10,7 @@ import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,21 +26,63 @@ public class TesseractOCR {
   private final String TAG = getClass().getSimpleName();
   private static TessBaseAPI tessBaseAPI = null;
   private static String APP_STORAGE_PATH;
+  Context context;
 
   private String language;
 
-  public TesseractOCR(Context context) {
+  public TesseractOCR(Context context) throws IOException {
 
-    tessBaseAPI = new TessBaseAPI();
+    this.context=context;
     APP_STORAGE_PATH = context.getFilesDir() + "/";
+    prepareLanguageDir();
+    tessBaseAPI = new TessBaseAPI();
 
-    copyTessData(context);
+    //copyTessData();
   }
 
   public void setLanguage(String language) { this.language = language;}
+  private void copyFile(Context context) {
+    try {
+      String filepath = APP_STORAGE_PATH+ "/tessdata/eng.traineddata";
+      AssetManager assetManager = context.getAssets();
 
+      InputStream instream = assetManager.open("tessdata/eng.traineddata");
+      OutputStream outstream = new FileOutputStream(filepath);
+
+      byte[] buffer = new byte[1024];
+      int read;
+      while ((read = instream.read(buffer)) != -1) {
+        outstream.write(buffer, 0, read);
+      }
+
+      outstream.flush();
+      outstream.close();
+      instream.close();
+
+      File file = new File(filepath);
+      if (!file.exists()) {
+        throw new FileNotFoundException();
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void prepareLanguageDir() {
+    File dir = new File(APP_STORAGE_PATH + "/tessdata");
+    if (!dir.exists()) {
+      dir.mkdirs();
+    }
+
+    File trainedData = new File(APP_STORAGE_PATH + "/tessdata/eng.traineddata");
+    if (!trainedData.exists()) {
+      copyFile(context);
+    }
+  }
   // copy trained data from APK to internal storage
-  private void copyTessData(Context context) {
+  private void copyTessData() {
 
     final String TESSDATA_PATH = "tessdata";
     File tessDataDir = new File(APP_STORAGE_PATH + TESSDATA_PATH);
@@ -54,7 +98,6 @@ public class TesseractOCR {
         for (String fileName : tessDataList) {
 
           String outputFilePath = APP_STORAGE_PATH + TESSDATA_PATH + "/" + fileName;
-
           if ( !(new File(outputFilePath)).exists() ) {
 
             InputStream is = context.getAssets().open(TESSDATA_PATH + "/" + fileName);
@@ -87,8 +130,9 @@ public class TesseractOCR {
 
     try {
 //      tessBaseAPI = new TessBaseAPI();
-      tessBaseAPI.init(APP_STORAGE_PATH, language, TessBaseAPI.OEM_DEFAULT);
-      tessBaseAPI.setDebug(BuildConfig.DEBUG);
+//      tessBaseAPI.init(APP_STORAGE_PATH, language, TessBaseAPI.OEM_DEFAULT);
+//      tessBaseAPI.setDebug(BuildConfig.DEBUG);
+      tessBaseAPI.init(APP_STORAGE_PATH, language);
       tessBaseAPI.setImage(bitmap);
       Log.d(TAG, "extractText: " + tessBaseAPI.getUTF8Text());
       ResultIterator resultIterator = tessBaseAPI.getResultIterator();
@@ -121,7 +165,7 @@ public class TesseractOCR {
       bitmap.recycle();
     }
 
-    return result;
+    return null;
   }
 
   public void destroy() { if ( null != tessBaseAPI ) tessBaseAPI.end(); }

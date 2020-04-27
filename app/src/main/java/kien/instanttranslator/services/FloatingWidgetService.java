@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.textview.MaterialTextView;
+
+import java.io.IOException;
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.activities.MainActivity;
@@ -72,7 +75,11 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
       int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_OK);
       Intent resultData = intent.getParcelableExtra(EXTRA_RESULT_INTENT);
-      screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
+      try {
+        screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
 
     return super.onStartCommand(intent, flags, startId);
@@ -181,7 +188,9 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
         floatingView.post(new Runnable() {
 
           @Override
-          public void run() { tvTranslated.setText(resultData); }
+          public void run() {
+            tvTranslated.setText(resultData);
+          }
         });
         break;
     }

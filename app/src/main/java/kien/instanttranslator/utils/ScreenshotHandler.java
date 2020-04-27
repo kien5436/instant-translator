@@ -3,6 +3,7 @@ package kien.instanttranslator.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -14,7 +15,10 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
 
+import java.io.IOException;
+
 import kien.instanttranslator.R;
+import kien.instanttranslator.ocr.MobileVisionAPI;
 import kien.instanttranslator.ocr.TesseractOCR;
 import kien.instanttranslator.services.FloatingWidgetService;
 import kien.instanttranslator.translation.LanguageModelMananger;
@@ -42,10 +46,10 @@ public class ScreenshotHandler {
   private Translator translator;
 
   private Context context;
-  private int touchX;
-  private int touchY;
+  private float touchX;
+  private float touchY;
 
-  public ScreenshotHandler(Context context, int resultCode, Intent resultData) {
+  public ScreenshotHandler(Context context, int resultCode, Intent resultData) throws IOException {
 
     this.context = context;
     this.resultCode = resultCode;
@@ -66,9 +70,9 @@ public class ScreenshotHandler {
     translator = new Translator();
   }
 
-  public void setTouchX(int touchX) { this.touchX = touchX; }
+  public void setTouchX(float touchX) { this.touchX = touchX; }
 
-  public void setTouchY(int touchY) { this.touchY = touchY; }
+  public void setTouchY(float touchY) { this.touchY = touchY; }
 
   public void startCapture() {
 
@@ -82,6 +86,7 @@ public class ScreenshotHandler {
       @Override
       public void onStop() { virtualDisplay.release(); }
     };
+
     virtualDisplay = mediaProjection
         .createVirtualDisplay("virtualDisplay",
             screenshot.getWidth(), screenshot.getHeight(),
@@ -105,15 +110,22 @@ public class ScreenshotHandler {
         service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_WAITING_VIEW, null);
 
         // do OCR
-        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
-        String extractedText = tesseractOCR.extractText(bitmap, touchX, touchY);
-        Log.d(TAG, "onImageAvailable: " + extractedText);
+//        tesseractOCR.setLanguage(LanguageModelMananger.DEFAULT_LANGUAGE);
+//        String extractedText = tesseractOCR.extractText(bitmap, touchX, touchY);
+//        Log.e(TAG, "onImageAvailable: " + extractedText);
 
-        translator.setOriginalText("You got it!");
+        MobileVisionAPI api=new MobileVisionAPI();
+        float x= (float) (touchX*0.8);
+        float y= (float) (touchY*0.8);
+        String extractedText = api.extract(context, bitmap, touchX, touchY);
+
+//        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, extractedText);
+        translator.setOriginalText(extractedText);
+        String translated = null;
         try {
-          String resultData = translator.translate();
-          service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, resultData);
-          Log.d(TAG, "onImageAvailable: " + resultData);
+          translated = translator.translate();
+          service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, translated);
+          Log.d(TAG, "onImageAvailable: " + translated);
         }
         catch (Exception e) {
           Log.e(TAG, "onImageAvailable: " + e.getMessage());
@@ -122,7 +134,6 @@ public class ScreenshotHandler {
               service.getResources().getString(R.string.translateFailed)
           );
         }
-
         isCapturing = false;
       }
     };
