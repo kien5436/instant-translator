@@ -1,0 +1,8 @@
+<resources>
+  <string name="app_name">Instant Translator</string>
+  <string name="startTranslating">Bắt đầu dịch</string>
+  <string name="manageLanguages">Quản lí ngôn ngữ</string>
+  <string name="wait">Đang dịch…</string>
+  <string name="translateFailed">Không thể dịch, xin thử lại</string>
+  <string name="lowStorage">Không đủ bộ nhớ</string>
+</resources>

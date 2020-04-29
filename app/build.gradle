@@ -41,12 +41,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // ocr
-    implementation 'com.rmtheis:tess-two:9.0.0'
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+
     // text translation
     implementation 'com.google.firebase:firebase-ml-natural-language:22.0.0'
-    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.7'
+    implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.8'
     implementation 'com.google.firebase:firebase-ml-natural-language-language-id-model:20.0.7'
 
-    implementation 'com.google.firebase:firebase-analytics:17.2.3'
-    implementation 'com.google.android.gms:play-services-vision:19.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.4.0'
+    implementation 'com.google.android.gms:play-services-vision:20.0.0'
 }

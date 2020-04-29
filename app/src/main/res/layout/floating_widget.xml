@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/layoutParent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
   <RelativeLayout
       android:id="@+id/layoutExpanded"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_below="@id/layoutCollapsed"
+      android:layout_alignParentBottom="true"
       android:orientation="horizontal"
       android:padding="8dp"
-      android:visibility="gone">
+      android:visibility="visible">
 
     <ScrollView
-        android:id="@+id/svResult"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bordered_view"
         android:padding="8dp"
@@ -24,7 +22,7 @@
 
       <com.google.android.material.textview.MaterialTextView
           android:id="@+id/tvTranslated"
-          android:layout_width="wrap_content"
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/wait"
           android:textColor="#fff"
@@ -40,7 +38,6 @@
       android:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivCollapsed"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginTop="8dp"
