@@ -4,4 +4,5 @@
   <string name="manageLanguages">Manage languages</string>
   <string name="wait">Translating…</string>
   <string name="translateFailed">Could not translate, please try again</string>
+  <string name="lowStorage">Insufficient memory</string>
 </resources>

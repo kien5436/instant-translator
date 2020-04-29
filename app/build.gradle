@@ -42,6 +42,8 @@ dependencies {
 
     // ocr
     implementation 'com.rmtheis:tess-two:9.0.0'
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+
     // text translation
     implementation 'com.google.firebase:firebase-ml-natural-language:22.0.0'
     implementation 'com.google.firebase:firebase-ml-natural-language-translate-model:20.0.8'

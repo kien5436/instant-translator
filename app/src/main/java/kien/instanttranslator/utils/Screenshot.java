@@ -10,7 +10,6 @@ import android.graphics.Point;
 import android.media.Image;
 import android.media.ImageReader;
 import android.view.Display;
-import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -19,6 +18,8 @@ class Screenshot {
 
   private final String TAG = getClass().getSimpleName();
   private int width, height;
+
+  static final float SCALE_RATIO = (float) 1;
 
   private static Screenshot screenshot = null;
 
@@ -83,8 +84,10 @@ class Screenshot {
     Bitmap croppedBmp = Bitmap.createBitmap(latestBmp, 0, 0, width, height);
     croppedBmp = grayedOut(croppedBmp);
     croppedBmp = Bitmap
-        .createScaledBitmap(croppedBmp, (int) (croppedBmp.getWidth() ), (int) (croppedBmp
-                                                                                       .getHeight() ), true);
+        .createScaledBitmap(croppedBmp,
+            (int) (croppedBmp.getWidth() * SCALE_RATIO),
+            (int) (croppedBmp.getHeight() * SCALE_RATIO),
+            true);
 
     croppedBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
 
