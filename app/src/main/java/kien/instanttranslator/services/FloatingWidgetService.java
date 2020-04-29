@@ -18,8 +18,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.textview.MaterialTextView;
+<<<<<<< HEAD
 
 import java.io.IOException;
+=======
+>>>>>>> master
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.activities.MainActivity;
@@ -83,12 +86,16 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
       int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_OK);
       Intent resultData = intent.getParcelableExtra(EXTRA_RESULT_INTENT);
+<<<<<<< HEAD
       try {
         screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
       }
       catch (IOException e) {
         e.printStackTrace();
       }
+=======
+      screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
+>>>>>>> master
     }
 
     return super.onStartCommand(intent, flags, startId);

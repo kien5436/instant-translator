@@ -50,4 +50,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics:17.4.0'
     implementation 'com.google.android.gms:play-services-vision:20.0.0'
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 }

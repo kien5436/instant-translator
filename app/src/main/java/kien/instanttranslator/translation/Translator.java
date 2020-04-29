@@ -2,6 +2,13 @@ package kien.instanttranslator.translation;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
+=======
+>>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
+>>>>>>> master
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
 import com.google.firebase.ml.naturallanguage.languageid.FirebaseLanguageIdentification;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
@@ -47,6 +54,20 @@ public class Translator {
         .setSourceLanguage(sourceLanguage)
         .setTargetLanguage(targetLanguage)
         .build();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
+        .requireWifi()
+        .build();
+    final FirebaseTranslator translator = FirebaseNaturalLanguage.getInstance()
+                                                                 .getTranslator(options);
+    final Task<Void> downloadTask = translator.downloadModelIfNeeded(conditions);
+    final Task<String> translateTask = translator.translate(originalText);
+
+    Tasks.await(downloadTask);
+=======
+>>>>>>> master
 //    FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
 //        .requireWifi()
 //        .build();
@@ -56,6 +77,10 @@ public class Translator {
     final Task<String> translateTask = translator.translate(originalText);
 
 //    Tasks.await(downloadTask);
+<<<<<<< HEAD
+=======
+>>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
+>>>>>>> master
 
     return Tasks.await(translateTask);
   }

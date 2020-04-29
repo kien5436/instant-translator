@@ -14,7 +14,10 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+>>>>>>> master
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -48,7 +51,11 @@ public class ScreenshotHandler {
   private float touchX;
   private float touchY;
 
+<<<<<<< HEAD
   public ScreenshotHandler(Context context, int resultCode, Intent resultData) throws IOException {
+=======
+  public ScreenshotHandler(Context context, int resultCode, Intent resultData) {
+>>>>>>> master
 
     this.context = context;
     this.resultCode = resultCode;
@@ -86,7 +93,10 @@ public class ScreenshotHandler {
       @Override
       public void onStop() { virtualDisplay.release(); }
     };
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     virtualDisplay = mediaProjection
         .createVirtualDisplay("virtualDisplay",
             screenshot.getWidth(), screenshot.getHeight(),
@@ -101,7 +111,10 @@ public class ScreenshotHandler {
       @Override
       public void onImageAvailable(ImageReader reader) {
 
+<<<<<<< HEAD
         Log.d(TAG, "onImageAvailable: " + isCapturing);
+=======
+>>>>>>> master
 //        if ( !isCapturing ) return;
 
         FloatingWidgetService service = (FloatingWidgetService) context;

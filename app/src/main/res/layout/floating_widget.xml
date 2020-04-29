@@ -8,10 +8,13 @@
       android:id="@+id/layoutExpanded"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+<<<<<<< HEAD
       android:layout_alignParentBottom="true"
+=======
+>>>>>>> master
       android:orientation="horizontal"
       android:padding="8dp"
-      android:visibility="visible">
+      android:visibility="gone">
 
     <ScrollView
         android:layout_width="match_parent"
