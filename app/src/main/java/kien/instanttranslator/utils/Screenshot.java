@@ -18,6 +18,11 @@ class Screenshot {
 
   private final String TAG = getClass().getSimpleName();
   private int width, height;
+<<<<<<< HEAD
+=======
+
+  static final float SCALE_RATIO = (float) 1;
+>>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
 
   private static Screenshot screenshot = null;
 
@@ -82,8 +87,15 @@ class Screenshot {
     Bitmap croppedBmp = Bitmap.createBitmap(latestBmp, 0, 0, width, height);
     croppedBmp = grayedOut(croppedBmp);
     croppedBmp = Bitmap
+<<<<<<< HEAD
         .createScaledBitmap(croppedBmp, (int) (croppedBmp.getWidth() * .8), (int) (croppedBmp
                                                                                        .getHeight() * .8), true);
+=======
+        .createScaledBitmap(croppedBmp,
+            (int) (croppedBmp.getWidth() * SCALE_RATIO),
+            (int) (croppedBmp.getHeight() * SCALE_RATIO),
+            true);
+>>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
 
     croppedBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
 

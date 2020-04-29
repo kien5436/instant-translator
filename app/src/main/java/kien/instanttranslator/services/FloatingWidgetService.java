@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -28,6 +31,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
   public static final String EXTRA_RESULT_INTENT = "RESULT_INTENT";
   public static final int UPDATE_UI_SHOW_WAITING_VIEW = 0;
   public static final int UPDATE_UI_SHOW_RESULT = 1;
+  public static final int UPDATE_UI_SHOW_ERROR = 2;
 
   private static WindowManager windowManager;
   private View floatingView;
@@ -37,6 +41,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
   private WindowManager.LayoutParams params;
 
   private ScreenshotHandler screenshotHandler;
+  private int screenHeight;
 
   public static WindowManager getWindowManager() { return windowManager; }
 
@@ -61,6 +66,10 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
     if ( null != windowManager )
       windowManager.addView(floatingView, params);
+
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+    screenHeight = displayMetrics.heightPixels;
 
     bindView();
   }
@@ -111,13 +120,23 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
           case MotionEvent.ACTION_UP:
             // hiding collapsedView and take screenshots in background thread
             collapsedView.setVisibility(View.INVISIBLE);
+
+            RelativeLayout.LayoutParams expandedViewParams = (RelativeLayout.LayoutParams) expandedView
+                .getLayoutParams();
+
+            if ( (float) (screenHeight / 2) < event.getRawY() )
+              expandedViewParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            else expandedViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+            expandedView.setLayoutParams(expandedViewParams);
+
             floatingView.post(new Runnable() {
 
               @Override
               public void run() {
 
-                screenshotHandler.setTouchX((int) event.getRawX());
-                screenshotHandler.setTouchY((int) event.getRawY());
+                screenshotHandler.setTouchX(event.getRawX());
+                screenshotHandler.setTouchY(event.getRawY());
                 screenshotHandler.startCapture();
               }
             });
@@ -127,6 +146,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             params.x = initialX + (int) (event.getRawX() - initialTouchX);
             params.y = initialY + (int) (event.getRawY() - initialTouchY);
             windowManager.updateViewLayout(floatingView, params);
+
             return true;
         }
 
@@ -183,6 +203,18 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
           @Override
           public void run() { tvTranslated.setText(resultData); }
         });
+        break;
+      case UPDATE_UI_SHOW_ERROR:
+        floatingView.post(new Runnable() {
+
+          @Override
+          public void run() {
+
+            expandedView.setVisibility(View.GONE);
+            collapsedView.setVisibility(View.VISIBLE);
+          }
+        });
+        Toast.makeText(this, resultData, Toast.LENGTH_SHORT).show();
         break;
     }
   }
