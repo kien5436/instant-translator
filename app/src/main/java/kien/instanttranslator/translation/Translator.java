@@ -1,14 +1,9 @@
 package kien.instanttranslator.translation;
 
+import android.content.Context;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
-=======
->>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
->>>>>>> master
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
 import com.google.firebase.ml.naturallanguage.languageid.FirebaseLanguageIdentification;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
@@ -19,6 +14,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import kien.instanttranslator.utils.LanguageUnvailableException;
+import kien.instanttranslator.utils.Network;
+
 public class Translator {
 
   private final String TAG = getClass().getSimpleName();
@@ -26,21 +24,26 @@ public class Translator {
   private String originalText;
   private int targetLanguage;
 
-  public Translator() {
+  private Context context;
+  private LanguageModelMananger languageModelMananger;
+  private FirebaseLanguageIdentification languageIdentifier;
 
+  public Translator(Context context) {
+
+    this.context = context;
     targetLanguage = FirebaseTranslateLanguage.VI;
+    languageModelMananger = new LanguageModelMananger();
+    languageIdentifier = FirebaseNaturalLanguage.getInstance().getLanguageIdentification();
   }
 
   public void setTargetLanguage(int targetLanguage) { this.targetLanguage = targetLanguage; }
 
   public void setOriginalText(String originalText) { this.originalText = originalText; }
 
-  public String translate() throws InterruptedException, ExecutionException, TimeoutException {
+  public String translate()
+      throws InterruptedException, ExecutionException, TimeoutException, LanguageUnvailableException {
 
-    FirebaseLanguageIdentification languageIdentifier = FirebaseNaturalLanguage.getInstance()
-                                                                               .getLanguageIdentification();
     final Task<String> identifyTask = languageIdentifier.identifyLanguage(originalText);
-
     String languageCode = Tasks.await(identifyTask, 500, TimeUnit.MILLISECONDS);
     Integer sourceLanguage = !languageCode
         .equals(FirebaseLanguageIdentification.UNDETERMINED_LANGUAGE_CODE) ?
@@ -50,37 +53,18 @@ public class Translator {
     // set fallback source language to English
     if ( null == sourceLanguage ) sourceLanguage = FirebaseTranslateLanguage.EN;
 
+    if ( (!languageModelMananger.isDownloaded(sourceLanguage) ||
+          !languageModelMananger.isDownloaded(targetLanguage))
+         && !Network.isAvailable(context) )
+      throw new LanguageUnvailableException();
+
     FirebaseTranslatorOptions options = new FirebaseTranslatorOptions.Builder()
         .setSourceLanguage(sourceLanguage)
         .setTargetLanguage(targetLanguage)
         .build();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
-        .requireWifi()
-        .build();
     final FirebaseTranslator translator = FirebaseNaturalLanguage.getInstance()
                                                                  .getTranslator(options);
-    final Task<Void> downloadTask = translator.downloadModelIfNeeded(conditions);
     final Task<String> translateTask = translator.translate(originalText);
-
-    Tasks.await(downloadTask);
-=======
->>>>>>> master
-//    FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
-//        .requireWifi()
-//        .build();
-    final FirebaseTranslator translator = FirebaseNaturalLanguage.getInstance()
-                                                                 .getTranslator(options);
-//    final Task<Void> downloadTask = translator.downloadModelIfNeeded(conditions);
-    final Task<String> translateTask = translator.translate(originalText);
-
-//    Tasks.await(downloadTask);
-<<<<<<< HEAD
-=======
->>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
->>>>>>> master
 
     return Tasks.await(translateTask);
   }
