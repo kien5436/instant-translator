@@ -18,11 +18,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.textview.MaterialTextView;
-<<<<<<< HEAD
-
-import java.io.IOException;
-=======
->>>>>>> master
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.activities.MainActivity;
@@ -86,16 +81,7 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
       int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_OK);
       Intent resultData = intent.getParcelableExtra(EXTRA_RESULT_INTENT);
-<<<<<<< HEAD
-      try {
-        screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
-      }
-      catch (IOException e) {
-        e.printStackTrace();
-      }
-=======
       screenshotHandler = new ScreenshotHandler(this, resultCode, resultData);
->>>>>>> master
     }
 
     return super.onStartCommand(intent, flags, startId);
@@ -144,15 +130,11 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
             expandedView.setLayoutParams(expandedViewParams);
 
-            floatingView.post(new Runnable() {
+            floatingView.post(() -> {
 
-              @Override
-              public void run() {
-
-                screenshotHandler.setTouchX(event.getRawX());
-                screenshotHandler.setTouchY(event.getRawY());
-                screenshotHandler.startCapture();
-              }
+              screenshotHandler.setTouchX(event.getRawX());
+              screenshotHandler.setTouchY(event.getRawY());
+              screenshotHandler.startCapture();
             });
             return true;
           case MotionEvent.ACTION_MOVE:
@@ -200,33 +182,21 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
 
     switch (code) {
       case UPDATE_UI_SHOW_WAITING_VIEW:
-        floatingView.post(new Runnable() {
+        floatingView.post(() -> {
 
-          @Override
-          public void run() {
-
-            collapsedView.setVisibility(View.VISIBLE);
-            tvTranslated.setText(getResources().getString(R.string.wait));
-            expandedView.setVisibility(View.VISIBLE);
-          }
+          collapsedView.setVisibility(View.VISIBLE);
+          tvTranslated.setText(getResources().getString(R.string.wait));
+          expandedView.setVisibility(View.VISIBLE);
         });
         break;
       case UPDATE_UI_SHOW_RESULT:
-        floatingView.post(new Runnable() {
-
-          @Override
-          public void run() { tvTranslated.setText(resultData); }
-        });
+        floatingView.post(() -> tvTranslated.setText(resultData));
         break;
       case UPDATE_UI_SHOW_ERROR:
-        floatingView.post(new Runnable() {
+        floatingView.post(() -> {
 
-          @Override
-          public void run() {
-
-            expandedView.setVisibility(View.GONE);
-            collapsedView.setVisibility(View.VISIBLE);
-          }
+          expandedView.setVisibility(View.GONE);
+          collapsedView.setVisibility(View.VISIBLE);
         });
         Toast.makeText(this, resultData, Toast.LENGTH_SHORT).show();
         break;

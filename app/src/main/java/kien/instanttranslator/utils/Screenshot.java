@@ -14,21 +14,12 @@ import android.view.Display;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-
 class Screenshot {
 
   private final String TAG = getClass().getSimpleName();
   private int width, height;
-<<<<<<< HEAD
 
   static final float SCALE_RATIO = (float) 1;
-=======
-<<<<<<< HEAD
-=======
-
-  static final float SCALE_RATIO = (float) 1;
->>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
->>>>>>> master
 
   private static Screenshot screenshot = null;
 
@@ -93,21 +84,10 @@ class Screenshot {
     Bitmap croppedBmp = Bitmap.createBitmap(latestBmp, 0, 0, width, height);
     croppedBmp = grayedOut(croppedBmp);
     croppedBmp = Bitmap
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        .createScaledBitmap(croppedBmp, (int) (croppedBmp.getWidth() * .8), (int) (croppedBmp
-                                                                                       .getHeight() * .8), true);
-=======
->>>>>>> master
         .createScaledBitmap(croppedBmp,
             (int) (croppedBmp.getWidth() * SCALE_RATIO),
             (int) (croppedBmp.getHeight() * SCALE_RATIO),
             true);
-<<<<<<< HEAD
-=======
->>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
->>>>>>> master
 
     croppedBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
 
@@ -118,8 +98,7 @@ class Screenshot {
 
   private Bitmap grayedOut(Bitmap srcBmp) {
 
-    Bitmap bwBmp = Bitmap
-        .createBitmap(srcBmp.getWidth(), srcBmp.getHeight(), srcBmp.getConfig());
+    Bitmap bwBmp = Bitmap.createBitmap(srcBmp.getWidth(), srcBmp.getHeight(), srcBmp.getConfig());
     Canvas canvas = new Canvas(bwBmp);
     Paint paint = new Paint();
     ColorMatrix colorMatrix = new ColorMatrix();

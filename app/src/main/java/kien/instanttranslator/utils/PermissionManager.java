@@ -11,7 +11,8 @@ public class PermissionManager {
 
   public static final int REQUEST_PERMISSION = 1;
   private static final String[] PERMISSIONS = {
-      Manifest.permission.INTERNET
+      Manifest.permission.INTERNET,
+      Manifest.permission.ACCESS_NETWORK_STATE
   };
 
   public static void askPermissions(Context context) {

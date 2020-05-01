@@ -4,8 +4,17 @@
   <string name="manageLanguages">Manage languages</string>
   <string name="wait">Translating…</string>
   <string name="translateFailed">Could not translate, please try again</string>
-<<<<<<< HEAD
-=======
   <string name="lowStorage">Insufficient memory</string>
->>>>>>> 16fbd083fe99d76de434b6a003a0e96c83b3153d
+  <string name="languageUnavailable">Language is not available</string>
+  <string name="languages">Languages</string>
+  <string name="deleteLanguageSuccess">Language deleted</string>
+  <string name="deleteLanguageFailure">Cannot delete language, try again!</string>
+  <string name="downloadLanguageSuccess">Language downloaded successfully</string>
+  <string name="downloadLanguageFailure">Cannot download language, try again</string>
+  <string name="downloading">Downloading…</string>
+  <string name="requireNetwork">Please connect to the network to download language</string>
+  <string name="deleteLanguage">Delete this language?</string>
+  <string name="no">No</string>
+  <string name="yes">Yes</string>
+  <!-- TODO: Remove or change this placeholder text -->
 </resources>

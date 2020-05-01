@@ -7,10 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import kien.instanttranslator.R;
 import kien.instanttranslator.services.FloatingWidgetService;
@@ -59,9 +59,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createWidget();
         break;
       case R.id.btnManage:
-        Toast.makeText(this, "Developing...", Toast.LENGTH_SHORT).show();
+        showLanguageList();
         break;
     }
+  }
+
+  private void showLanguageList() {
+
+    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+    ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down)
+      .replace(R.id.fragmentHolder, new LanguagesFragment())
+      .addToBackStack(TAG)
+      .commit();
   }
 
   private void createWidget() {

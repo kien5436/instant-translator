@@ -14,10 +14,6 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
 
-<<<<<<< HEAD
-import java.io.IOException;
-=======
->>>>>>> master
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -51,11 +47,7 @@ public class ScreenshotHandler {
   private float touchX;
   private float touchY;
 
-<<<<<<< HEAD
-  public ScreenshotHandler(Context context, int resultCode, Intent resultData) throws IOException {
-=======
   public ScreenshotHandler(Context context, int resultCode, Intent resultData) {
->>>>>>> master
 
     this.context = context;
     this.resultCode = resultCode;
@@ -72,7 +64,7 @@ public class ScreenshotHandler {
     imageReader = ImageReader
         .newInstance(screenshot.getWidth(), screenshot.getHeight(), PixelFormat.RGBA_8888, 2);
 
-    translator = new Translator();
+    translator = new Translator(context.getApplicationContext());
     mobileVisionAPI = new MobileVisionAPI(context.getApplicationContext());
   }
 
@@ -93,10 +85,6 @@ public class ScreenshotHandler {
       @Override
       public void onStop() { virtualDisplay.release(); }
     };
-<<<<<<< HEAD
-
-=======
->>>>>>> master
     virtualDisplay = mediaProjection
         .createVirtualDisplay("virtualDisplay",
             screenshot.getWidth(), screenshot.getHeight(),
@@ -106,59 +94,57 @@ public class ScreenshotHandler {
 
     mediaProjection.registerCallback(cb, handler);
 
-    final ImageReader.OnImageAvailableListener imageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    final ImageReader.OnImageAvailableListener imageAvailableListener = reader -> {
 
-      @Override
-      public void onImageAvailable(ImageReader reader) {
-
-<<<<<<< HEAD
-        Log.d(TAG, "onImageAvailable: " + isCapturing);
-=======
->>>>>>> master
 //        if ( !isCapturing ) return;
 
-        FloatingWidgetService service = (FloatingWidgetService) context;
+      FloatingWidgetService service = (FloatingWidgetService) context;
 
-        Bitmap bitmap = screenshot.getImage(imageReader);
-        stopCapture();
-        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_WAITING_VIEW, null);
+      Bitmap bitmap = screenshot.getImage(imageReader);
+      stopCapture();
+      service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_WAITING_VIEW, null);
 
-        if ( null == bitmap ) return;
+      if ( null == bitmap ) return;
 
-        // do OCR
-        float x = touchX * Screenshot.SCALE_RATIO;
-        float y = touchY * Screenshot.SCALE_RATIO;
-        String extractedText = null;
-        try {
-          extractedText = mobileVisionAPI.extractText(bitmap, x, y);
-        }
-        catch (LowStorageException e) {
-          service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_ERROR, e.getLocalizedMessage());
-        }
-
-        translator.setOriginalText(extractedText);
-        try {
-          String translated = translator.translate();
-          service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, translated);
-        }
-        catch (TimeoutException | InterruptedException | ExecutionException e) {
-          Log.e(TAG, "translate: " + e.getMessage());
-          service.updateUI(
-              FloatingWidgetService.UPDATE_UI_SHOW_RESULT,
-              service.getResources().getString(R.string.translateFailed)
-          );
-        }
-        catch (Exception e) {
-          Log.e(TAG, "translate: " + e.getMessage());
-          e.printStackTrace();
-          service.updateUI(
-              FloatingWidgetService.UPDATE_UI_SHOW_RESULT,
-              service.getResources().getString(R.string.translateFailed)
-          );
-        }
-
-        isCapturing = false;
+      // do OCR
+      float x = touchX * Screenshot.SCALE_RATIO;
+      float y = touchY * Screenshot.SCALE_RATIO;
+      String extractedText = null;
+      try {
+        extractedText = mobileVisionAPI.extractText(bitmap, x, y);
       }
+      catch (LowStorageException e) {
+        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_ERROR, e.getLocalizedMessage());
+      }
+
+      translator.setOriginalText(extractedText);
+      try {
+        String translated = translator.translate();
+        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_RESULT, translated);
+      }
+      catch (TimeoutException | InterruptedException | ExecutionException e) {
+        Log.e(TAG, "translate: " + e.getMessage());
+        service.updateUI(
+            FloatingWidgetService.UPDATE_UI_SHOW_RESULT,
+            service.getResources().getString(R.string.translateFailed)
+        );
+      }
+      catch (LanguageUnvailableException e) {
+        service.updateUI(
+            FloatingWidgetService.UPDATE_UI_SHOW_ERROR,
+            service.getResources().getString(R.string.languageUnavailable)
+        );
+      }
+      catch (Exception e) {
+        Log.e(TAG, "translate: " + e.getMessage());
+        e.printStackTrace();
+        service.updateUI(
+            FloatingWidgetService.UPDATE_UI_SHOW_RESULT,
+            service.getResources().getString(R.string.translateFailed)
+        );
+      }
+
+      isCapturing = false;
     };
 
     imageReader.setOnImageAvailableListener(imageAvailableListener, handler);

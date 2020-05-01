@@ -5,4 +5,15 @@
   <string name="wait">Đang dịch…</string>
   <string name="translateFailed">Không thể dịch, xin thử lại</string>
   <string name="lowStorage">Không đủ bộ nhớ</string>
+  <string name="languageUnavailable">Ngôn ngữ không có sẵn</string>
+  <string name="languages">Ngôn ngữ</string>
+  <string name="deleteLanguageSuccess">Đã xóa ngôn ngữ</string>
+  <string name="deleteLanguageFailure">Không thể xóa ngôn ngữ, hãy thử lại!</string>
+  <string name="downloadLanguageSuccess">Ngôn ngữ được tải xuống thành công</string>
+  <string name="downloadLanguageFailure">Không thể tải ngôn ngữ, hãy thử lại</string>
+  <string name="downloading">Đang tải…</string>
+  <string name="requireNetwork">Hãy kết nối mạng để tải ngôn ngữ</string>
+  <string name="deleteLanguage">Xóa ngôn ngữ này?</string>
+  <string name="no">Không</string>
+  <string name="yes">Có</string>
 </resources>
