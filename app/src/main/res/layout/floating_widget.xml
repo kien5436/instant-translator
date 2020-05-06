@@ -7,16 +7,18 @@
 
   <RelativeLayout
       android:id="@+id/layoutExpanded"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentTop="true"
+      android:layout_below="@id/layoutCollapsed"
+      android:layout_centerHorizontal="true"
+      android:layout_marginTop="40dp"
       android:orientation="horizontal"
       android:padding="8dp"
-      android:visibility="visible">
+      android:visibility="gone">
 
     <ScrollView
         android:id="@+id/svResult"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bordered_view"
         android:padding="8dp"
@@ -24,7 +26,7 @@
 
       <com.google.android.material.textview.MaterialTextView
           android:id="@+id/tvTranslated"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="@string/wait"
           android:textColor="#fff"
@@ -36,13 +38,14 @@
       android:id="@+id/layoutCollapsed"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
       android:orientation="vertical"
       android:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivCollapsed"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/ic_center_focus_24dp" />
 
@@ -50,7 +53,7 @@
         android:id="@+id/ivClose"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="20dp"
         android:src="@drawable/ic_close_25dp" />
   </RelativeLayout>
 </RelativeLayout>

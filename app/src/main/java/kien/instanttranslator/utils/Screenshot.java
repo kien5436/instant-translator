@@ -19,7 +19,7 @@ class Screenshot {
   private final String TAG = getClass().getSimpleName();
   private int width, height;
 
-  static final float SCALE_RATIO = (float) 1;
+  static final float SCALE_RATIO = (float) .5;
 
   private static Screenshot screenshot = null;
 
@@ -39,17 +39,8 @@ class Screenshot {
 
     display.getRealSize(size);
 
-    int width = size.x;
-    int height = size.y;
-
-    while (width * height > (2 << 19)) {
-
-      width = width >> 1;
-      height = height >> 1;
-    }
-
-    this.width = width;
-    this.height = height;
+    width = size.x;
+    height = size.y;
   }
 
   int getWidth() { return width; }

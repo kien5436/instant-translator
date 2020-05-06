@@ -38,6 +38,7 @@ public class ScreenshotHandler {
   private Intent resultData;
   private Screenshot screenshot;
   private ImageReader imageReader;
+  private ImageReader.OnImageAvailableListener imageAvailableListener;
   private boolean isCapturing = false;
 
   private Translator translator;
@@ -62,41 +63,10 @@ public class ScreenshotHandler {
     screenshot = Screenshot
         .getInstance(FloatingWidgetService.getWindowManager().getDefaultDisplay());
     imageReader = ImageReader
-        .newInstance(screenshot.getWidth(), screenshot.getHeight(), PixelFormat.RGBA_8888, 2);
+        .newInstance(screenshot.getWidth(), screenshot.getHeight(), PixelFormat.RGBA_8888, 1);
+    imageAvailableListener = reader -> {
 
-    translator = new Translator(context.getApplicationContext());
-    mobileVisionAPI = new MobileVisionAPI(context.getApplicationContext());
-  }
-
-  public void setTouchX(float touchX) { this.touchX = touchX; }
-
-  public void setTouchY(float touchY) { this.touchY = touchY; }
-
-  public void startCapture() {
-
-    Log.d(TAG, "startCapture: ");
-    if ( null != mediaProjection || null == resultData )
-      return; // hmm, I feel something is not good here
-
-    isCapturing = true;
-    mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
-    MediaProjection.Callback cb = new MediaProjection.Callback() {
-
-      @Override
-      public void onStop() { virtualDisplay.release(); }
-    };
-    virtualDisplay = mediaProjection
-        .createVirtualDisplay("virtualDisplay",
-            screenshot.getWidth(), screenshot.getHeight(),
-            context.getResources().getDisplayMetrics().densityDpi,
-            VIRTUAL_DISPLAY_FLAGS,
-            imageReader.getSurface(), null, handler);
-
-    mediaProjection.registerCallback(cb, handler);
-
-    final ImageReader.OnImageAvailableListener imageAvailableListener = reader -> {
-
-//        if ( !isCapturing ) return;
+//      if ( !isCapturing ) return;
 
       FloatingWidgetService service = (FloatingWidgetService) context;
 
@@ -106,7 +76,6 @@ public class ScreenshotHandler {
 
       if ( null == bitmap ) return;
 
-      // do OCR
       float x = touchX * Screenshot.SCALE_RATIO;
       float y = touchY * Screenshot.SCALE_RATIO;
       String extractedText = null;
@@ -114,7 +83,8 @@ public class ScreenshotHandler {
         extractedText = mobileVisionAPI.extractText(bitmap, x, y);
       }
       catch (LowStorageException e) {
-        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_ERROR, e.getLocalizedMessage());
+        service.updateUI(FloatingWidgetService.UPDATE_UI_SHOW_ERROR,
+            service.getResources().getString(R.string.lowStorage));
       }
 
       translator.setOriginalText(extractedText);
@@ -146,7 +116,34 @@ public class ScreenshotHandler {
 
       isCapturing = false;
     };
+    translator = new Translator(context.getApplicationContext());
+    mobileVisionAPI = new MobileVisionAPI(context.getApplicationContext());
+  }
 
+  public void setTouchX(float touchX) { this.touchX = touchX; }
+
+  public void setTouchY(float touchY) { this.touchY = touchY; }
+
+  public void startCapture() {
+
+    if ( null != mediaProjection || null == resultData )
+      return; // hmm, I feel something is not good here
+
+    isCapturing = true;
+    mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData);
+    MediaProjection.Callback cb = new MediaProjection.Callback() {
+
+      @Override
+      public void onStop() { virtualDisplay.release(); }
+    };
+    virtualDisplay = mediaProjection
+        .createVirtualDisplay("virtualDisplay",
+            screenshot.getWidth(), screenshot.getHeight(),
+            context.getResources().getDisplayMetrics().densityDpi,
+            VIRTUAL_DISPLAY_FLAGS,
+            imageReader.getSurface(), null, handler);
+
+    mediaProjection.registerCallback(cb, handler);
     imageReader.setOnImageAvailableListener(imageAvailableListener, handler);
   }
 
@@ -171,5 +168,6 @@ public class ScreenshotHandler {
     catch (InterruptedException e) {
       e.printStackTrace();
     }
+    mobileVisionAPI.destroy();
   }
 }

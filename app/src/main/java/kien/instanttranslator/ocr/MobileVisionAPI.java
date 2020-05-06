@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import kien.instanttranslator.R;
 import kien.instanttranslator.utils.LowStorageException;
 
 public class MobileVisionAPI {
@@ -228,7 +227,6 @@ public class MobileVisionAPI {
     String word = null;
     boolean hasAbility = false;
 
-    Log.d(TAG, "extractText: x: " + x + " y: " + y);
     if ( !textRecognizer.isOperational() ) {
 
       // Check for low storage.  If there is low storage, the native library will not be
@@ -236,8 +234,7 @@ public class MobileVisionAPI {
       IntentFilter lowstorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
       boolean hasLowStorage = null != context.registerReceiver(null, lowstorageFilter);
 
-      if ( hasLowStorage )
-        throw new LowStorageException(context.getResources().getString(R.string.lowStorage));
+      if ( hasLowStorage ) throw new LowStorageException();
     }
     else {
       Frame frame = new Frame.Builder().setBitmap(bitmap).build();
@@ -249,8 +246,8 @@ public class MobileVisionAPI {
 
         block = blocks.get(i);
         boundingBox.set(block.getBoundingBox());
-        Log.d(TAG, "block: " + block.getValue());
-        Log.d(TAG, "block: " + block.getBoundingBox());
+//        Log.d(TAG, "block: " + block.getValue());
+//        Log.d(TAG, "block: " + block.getBoundingBox());
 
         if ( boundingBox.contains(x, y) ) {
 
@@ -269,8 +266,8 @@ public class MobileVisionAPI {
 
         line = lines.get(j);
         boundingBox.set(line.getBoundingBox());
-        Log.d(TAG, "line: " + line.getValue());
-        Log.d(TAG, "line: " + line.getBoundingBox());
+//        Log.d(TAG, "line: " + line.getValue());
+//        Log.d(TAG, "line: " + line.getBoundingBox());
 
         if ( boundingBox.contains(x, y) ) {
 
@@ -288,8 +285,8 @@ public class MobileVisionAPI {
 
         element = words.get(k);
         boundingBox.set(element.getBoundingBox());
-        Log.d(TAG, "element: " + element.getValue());
-        Log.d(TAG, "element: " + element.getBoundingBox());
+//        Log.d(TAG, "element: " + element.getValue());
+//        Log.d(TAG, "element: " + element.getBoundingBox());
 
         if ( boundingBox.contains(x, y) ) {
 
@@ -305,4 +302,6 @@ public class MobileVisionAPI {
 
     return word;
   }
+
+  public void destroy() { textRecognizer.release(); }
 }

@@ -9,7 +9,6 @@ Translate text over other applications
 Include logo/demo screenshot etc.
 
 ## Tech/framework used
-- [Tesseract OCR](https://github.com/yushulx/android-tesseract-ocr)
 - [Mobile Vision's Text Recognition API](https://developers.google.com/vision/android/text-overview)
 - [ML Kit's Translate text API](https://firebase.google.com/docs/ml-kit/android/translate-text)
 

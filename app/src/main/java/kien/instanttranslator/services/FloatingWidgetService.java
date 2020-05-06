@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -114,22 +113,14 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             initialY = params.y;
             initialTouchX = event.getRawX();
             initialTouchY = event.getRawY();
+            params.y -= expandedView.getHeight() / 2;
 
             expandedView.setVisibility(View.GONE);
+            windowManager.updateViewLayout(floatingView, params);
             return true;
           case MotionEvent.ACTION_UP:
             // hiding collapsedView and take screenshots in background thread
             collapsedView.setVisibility(View.INVISIBLE);
-
-            RelativeLayout.LayoutParams expandedViewParams = (RelativeLayout.LayoutParams) expandedView
-                .getLayoutParams();
-
-            if ( (float) (screenHeight / 2) < event.getRawY() )
-              expandedViewParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            else expandedViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-
-            expandedView.setLayoutParams(expandedViewParams);
-
             floatingView.post(() -> {
 
               screenshotHandler.setTouchX(event.getRawX());
@@ -141,8 +132,8 @@ public class FloatingWidgetService extends Service implements View.OnClickListen
             // this code is helping the widget to move around the screen with fingers
             params.x = initialX + (int) (event.getRawX() - initialTouchX);
             params.y = initialY + (int) (event.getRawY() - initialTouchY);
-            windowManager.updateViewLayout(floatingView, params);
 
+            windowManager.updateViewLayout(floatingView, params);
             return true;
         }
 
