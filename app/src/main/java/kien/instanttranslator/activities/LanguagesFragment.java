@@ -59,7 +59,8 @@ public class LanguagesFragment extends Fragment {
     lvLanguages.setOnItemLongClickListener((parent, _view, position, id) -> {
 
       LanguageModel languageModel = (LanguageModel) parent.getItemAtPosition(position);
-      AppCompatImageButton icon = lvLanguages.getChildAt(position).findViewById(R.id.btnIcon);
+      AppCompatImageButton icon = lvLanguages
+          .getChildAt(position - lvLanguages.getFirstVisiblePosition()).findViewById(R.id.btnIcon);
 
       deleteLanguage(languageModel, icon);
 
